@@ -114,12 +114,40 @@ figures = {'S': [['ooooo',
                   'oxxoo',
                   'ooxoo',
                   'ooooo']]}
-def pauseScreen():
-        pause = pg.Surface((600, 500), pg.SRCALPHA)   
-        pause.fill((0, 0, 255, 127))                        
-        display_surf.blit(pause, (0, 0))
 
-def main():
+def save_score(points):
+    """Сохраняет результат в файл scores.txt"""
+    with open('scores.txt', 'a') as f:
+        f.write(f"{time.strftime('%Y-%m-%d %H:%M:%S')} - Очки: {points}\n")
+
+def show_pause_screen():
+    """Отображает экран паузы"""
+    pause_surface = pg.Surface((window_w, window_h), pg.SRCALPHA)
+    pause_surface.fill((0, 0, 0, 150))
+    display_surf.blit(pause_surface, (0, 0))
+    
+    pause_text = big_font.render('ПАУЗА', True, white)
+    pause_rect = pause_text.get_rect(center=(window_w/2, window_h/2 - 50))
+    display_surf.blit(pause_text, pause_rect)
+    
+    continue_text = basic_font.render('Нажмите ПРОБЕЛ чтобы продолжить', True, white)
+    continue_rect = continue_text.get_rect(center=(window_w/2, window_h/2 + 50))
+    display_surf.blit(continue_text, continue_rect)
+
+    pg.display.update()
+
+    while True:
+        for event in pg.event.get():
+            if event.type == QUIT:
+                pg.quit()
+                sys.exit()
+            if event.type == KEYDOWN:
+                if event.key == K_SPACE:
+                    return
+                if event.key == K_ESCAPE:
+                    pg.quit()
+                    sys.exit()
+    def main():
     global fps_clock, display_surf, basic_font, big_font
     pg.init()
     fps_clock = pg.time.Clock()
@@ -130,11 +158,9 @@ def main():
     showText('Тетрис Lite')
     while True: # начинаем игру
         runTetris()
-        pauseScreen()
         showText('Игра закончена')
 
-
-def runTetris():
+    def runTetris():
     cup = emptycup()
     last_move_down = time.time()
     last_side_move = time.time()
@@ -146,10 +172,11 @@ def runTetris():
     level, fall_speed = calcSpeed(points)
     fallingFig = getNewFig()
     nextFig = getNewFig()
+    paused = False
+
 
     while True: 
-        if fallingFig == None:
-            # если нет падающих фигур, генерируем новую
+        if fallingFig == None: # если нет падающих фигур, генерируем новую
             fallingFig = nextFig
             nextFig = getNewFig()
             last_fall = time.time()
@@ -158,9 +185,10 @@ def runTetris():
             if not checkPos(cup, fallingFig):
                 return # если на игровом поле нет свободного места - игра закончена
         quitGame()
+
         for event in pg.event.get(): 
             if event.type == KEYUP:
-                if event.key == K_SPACE:
+                if event.key == K_LEFT:
                     pauseScreen()
                     showText('Пауза')
                     last_fall = time.time()
