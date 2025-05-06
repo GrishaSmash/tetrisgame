@@ -183,18 +183,14 @@ def show_pause_screen():
             
 
             if not checkPos(cup, fallingFig):
-                return # если на игровом поле нет свободного места - игра закончена
-        quitGame()
+                save_score(points) # сохранение перед выходом
+                return
+
+            quitGame()
 
         for event in pg.event.get(): 
             if event.type == KEYUP:
                 if event.key == K_LEFT:
-                    pauseScreen()
-                    showText('Пауза')
-                    last_fall = time.time()
-                    last_move_down = time.time()
-                    last_side_move = time.time()
-                elif event.key == K_LEFT:
                     going_left = False
                 elif event.key == K_RIGHT:
                     going_right = False
@@ -202,12 +198,24 @@ def show_pause_screen():
                     going_down = False
 
             elif event.type == KEYDOWN:
-                # перемещение фигуры вправо и влево
+                if event.key == K_SPACE
+                    paused = not paused
+                    if paused:
+                        show_pause_screen()
+                        last_fall = time.time()
+                        last_move_down = time.time()
+                        last_side_move = time.time()
+                    continue
+
+                if paused:
+                    continue
+
                 if event.key == K_LEFT and checkPos(cup, fallingFig, adjX=-1):
                     fallingFig['x'] -= 1
                     going_left = True
                     going_right = False
                     last_side_move = time.time()
+
 
                 elif event.key == K_RIGHT and checkPos(cup, fallingFig, adjX=1):
                     fallingFig['x'] += 1
@@ -237,6 +245,9 @@ def show_pause_screen():
                         if not checkPos(cup, fallingFig, adjY=i):
                             break
                     fallingFig['y'] += i - 1
+        if paused:
+            continue
+            
 
         # управление падением фигуры при удержании клавиш
         if (going_left or going_right) and time.time() - last_side_move > side_freq:
