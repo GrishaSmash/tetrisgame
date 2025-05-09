@@ -19,102 +19,30 @@ brd_color, bg_color, txt_color, title_color, info_color = white, black, white, c
 fig_w, fig_h = 5, 5
 empty = 'o'
 
-figures = {'S': [['ooooo',
-                  'ooooo',
-                  'ooxxo',
-                  'oxxoo',
-                  'ooooo'],
-                 ['ooooo',
-                  'ooxoo',
-                  'ooxxo',
-                  'oooxo',
-                  'ooooo']],
-           'Z': [['ooooo',
-                  'ooooo',
-                  'oxxoo',
-                  'ooxxo',
-                  'ooooo'],
-                 ['ooooo',
-                  'ooxoo',
-                  'oxxoo',
-                  'oxooo',
-                  'ooooo']],
-           'J': [['ooooo',
-                  'oxooo',
-                  'oxxxo',
-                  'ooooo',
-                  'ooooo'],
-                 ['ooooo',
-                  'ooxxo',
-                  'ooxoo',
-                  'ooxoo',
-                  'ooooo'],
-                 ['ooooo',
-                  'ooooo',
-                  'oxxxo',
-                  'oooxo',
-                  'ooooo'],
-                 ['ooooo',
-                  'ooxoo',
-                  'ooxoo',
-                  'oxxoo',
-                  'ooooo']],
-           'L': [['ooooo',
-                  'oooxo',
-                  'oxxxo',
-                  'ooooo',
-                  'ooooo'],
-                 ['ooooo',
-                  'ooxoo',
-                  'ooxoo',
-                  'ooxxo',
-                  'ooooo'],
-                 ['ooooo',
-                  'ooooo',
-                  'oxxxo',
-                  'oxooo',
-                  'ooooo'],
-                 ['ooooo',
-                  'oxxoo',
-                  'ooxoo',
-                  'ooxoo',
-                  'ooooo']],
-           'I': [['ooxoo',
-                  'ooxoo',
-                  'ooxoo',
-                  'ooxoo',
-                  'ooooo'],
-                 ['ooooo',
-                  'ooooo',
-                  'xxxxo',
-                  'ooooo',
-                  'ooooo']],
-           'O': [['ooooo',
-                  'ooooo',
-                  'oxxoo',
-                  'oxxoo',
-                  'ooooo']],
-           'T': [['ooooo',
-                  'ooxoo',
-                  'oxxxo',
-                  'ooooo',
-                  'ooooo'],
-                 ['ooooo',
-                  'ooxoo',
-                  'ooxxo',
-                  'ooxoo',
-                  'ooooo'],
-                 ['ooooo',
-                  'ooooo',
-                  'oxxxo',
-                  'ooxoo',
-                  'ooooo'],
-                 ['ooooo',
-                  'ooxoo',
-                  'oxxoo',
-                  'ooxoo',
-                  'ooooo']]}
-
+figures = {
+    'S': [['ooooo', 'ooooo', 'ooxxo', 'oxxoo', 'ooooo'],
+          ['ooooo', 'ooxoo', 'ooxxo', 'oooxo', 'ooooo']],
+    'Z': [['ooooo', 'ooooo', 'oxxoo', 'ooxxo', 'ooooo'],
+          ['ooooo', 'ooxoo', 'oxxoo', 'oxooo', 'ooooo']],
+    'J': [['ooooo', 'oxooo', 'oxxxo', 'ooooo', 'ooooo'],
+          ['ooooo', 'ooxxo', 'ooxoo', 'ooxoo', 'ooooo'],
+          ['ooooo', 'ooooo', 'oxxxo', 'oooxo', 'ooooo'],
+          ['ooooo', 'ooxoo', 'ooxoo', 'oxxoo', 'ooooo']],
+    'L': [['ooooo', 'oooxo', 'oxxxo', 'ooooo', 'ooooo'],
+          ['ooooo', 'ooxoo', 'ooxoo', 'ooxxo', 'ooooo'],
+          ['ooooo', 'ooooo', 'oxxxo', 'oxooo', 'ooooo'],
+          ['ooooo', 'oxxoo', 'ooxoo', 'ooxoo', 'ooooo']],
+    'I': [['ooxoo', 'ooxoo', 'ooxoo', 'ooxoo', 'ooooo'],
+          ['ooooo', 'ooooo', 'xxxxo', 'ooooo', 'ooooo']],
+    'O': [['ooooo', 'ooooo', 'oxxoo', 'oxxoo', 'ooooo']],
+    'T': [['ooooo', 'ooxoo', 'oxxxo', 'ooooo', 'ooooo'],
+          ['ooooo', 'ooxoo', 'ooxxo', 'ooxoo', 'ooooo'],
+          ['ooooo', 'ooooo', 'oxxxo', 'ooxoo', 'ooooo'],
+          ['ooooo', 'ooxoo', 'oxxoo', 'ooxoo', 'ooooo']]
+}
+                  
+                  
+                 
 def save_score(points):
     """Сохраняет результат в файл scores.txt"""
     with open('scores.txt', 'a') as f:
@@ -147,20 +75,188 @@ def show_pause_screen():
                 if event.key == K_ESCAPE:
                     pg.quit()
                     sys.exit()
-    def main():
-    global fps_clock, display_surf, basic_font, big_font
-    pg.init()
-    fps_clock = pg.time.Clock()
-    display_surf = pg.display.set_mode((window_w, window_h))
-    basic_font = pg.font.SysFont('arial', 20)
-    big_font = pg.font.SysFont('verdana', 45)
-    pg.display.set_caption('Тетрис Lite')
-    showText('Тетрис Lite')
-    while True: # начинаем игру
-        runTetris()
-        showText('Игра закончена')
 
-    def runTetris():
+def txtObjects(text, font, color):
+    surf = font.render(text, True, color)
+    return surf, surf.get_rect()
+
+
+def stopGame():
+    pg.quit()
+    sys.exit()
+
+
+def checkKeys():
+    for event in pg.event.get([KEYDOWN, KEYUP]):
+        if event.type == KEYDOWN:
+            continue
+        return event.key
+    return None                
+
+def showText(text):
+    titleSurf, titleRect = txtObjects(text, big_font, title_color)
+    titleRect.center = (int(window_w / 2) - 3, int(window_h / 2) - 3)
+    display_surf.blit(titleSurf, titleRect)
+
+    pressKeySurf, pressKeyRect = txtObjects('Нажмите любую клавишу для продолжения', basic_font, title_color)
+    pressKeyRect.center = (int(window_w / 2), int(window_h / 2) + 100)
+    display_surf.blit(pressKeySurf, pressKeyRect)
+
+    while checkKeys() == None:
+        pg.display.update()
+        fps_clock.tick()
+
+
+def quitGame():
+    for event in pg.event.get(QUIT):
+        stopGame()
+    for event in pg.event.get(KEYUP):
+        if event.key == K_ESCAPE:
+            stopGame()
+        pg.event.post(event)
+
+
+def calcSpeed(points):
+    level = int(points / 10) + 1
+    fall_speed = 0.27 - (level * 0.02)
+    return level, fall_speed
+
+def getNewFig():
+    shape = random.choice(list(figures.keys()))
+    newFigure = {
+        'shape': shape,
+        'rotation': random.randint(0, len(figures[shape]) - 1),
+        'x': int(cup_w / 2) - int(fig_w / 2),
+        'y': -2,
+        'color': random.randint(0, len(colors) - 1)
+    }
+    return newFigure
+
+
+def emptycup():
+    cup = []
+    for i in range(cup_w):
+        cup.append([empty] * cup_h)
+    return cup
+
+
+def addToCup(cup, fig):
+    for x in range(fig_w):
+        for y in range(fig_h):
+            if figures[fig['shape']][fig['rotation']][y][x] != empty:
+                cup[x + fig['x']][y + fig['y']] = fig['color']
+
+def incup(x, y):
+    return 0 <= x < cup_w and y < cup_h
+
+
+def checkPos(cup, fig, adjX=0, adjY=0):
+    for x in range(fig_w):
+        for y in range(fig_h):
+            abovecup = y + fig['y'] + adjY < 0
+            if abovecup or figures[fig['shape']][fig['rotation']][y][x] == empty:
+                continue
+            if not incup(x + fig['x'] + adjX, y + fig['y'] + adjY):
+                return False
+            if cup[x + fig['x'] + adjX][y + fig['y'] + adjY] != empty:
+                return False
+    return True
+
+
+def isCompleted(cup, y):
+    for x in range(cup_w):
+        if cup[x][y] == empty:
+            return False
+    return True
+
+
+def clearCompleted(cup):
+    removed_lines = 0
+    y = cup_h - 1
+    while y >= 0:
+        if isCompleted(cup, y):
+            for pushDownY in range(y, 0, -1):
+                for x in range(cup_w):
+                    cup[x][pushDownY] = cup[x][pushDownY - 1]
+            for x in range(cup_w):
+                cup[x][0] = empty
+            removed_lines += 1
+        else:
+            y -= 1
+    return removed_lines
+
+def convertCoords(block_x, block_y):
+    return (side_margin + (block_x * block)), (top_margin + (block_y * block))
+
+
+def drawBlock(block_x, block_y, color, pixelx=None, pixely=None):
+    if color == empty:
+        return
+    if pixelx is None and pixely is None:
+        pixelx, pixely = convertCoords(block_x, block_y)
+    pg.draw.rect(display_surf, colors[color], (pixelx + 1, pixely + 1, block - 1, block - 1), 0, 3)
+    pg.draw.rect(display_surf, lightcolors[color], (pixelx + 1, pixely + 1, block - 4, block - 4), 0, 3)
+    pg.draw.circle(display_surf, colors[color], (pixelx + block / 2, pixely + block / 2), 5)
+
+
+def gamecup(cup):
+    pg.draw.rect(display_surf, brd_color, (side_margin - 4, top_margin - 4, (cup_w * block) + 8, (cup_h * block) + 8),
+                 5)
+    pg.draw.rect(display_surf, bg_color, (side_margin, top_margin, block * cup_w, block * cup_h))
+    for x in range(cup_w):
+        for y in range(cup_h):
+            drawBlock(x, y, cup[x][y])
+
+
+def drawTitle():
+    titleSurf = big_font.render('Тетрис Lite', True, title_color)
+    titleRect = titleSurf.get_rect()
+    titleRect.topleft = (window_w - 425, 30)
+    display_surf.blit(titleSurf, titleRect)
+
+
+def drawInfo(points, level):
+    pointsSurf = basic_font.render(f'Баллы: {points}', True, txt_color)
+    pointsRect = pointsSurf.get_rect()
+    pointsRect.topleft = (window_w - 550, 180)
+    display_surf.blit(pointsSurf, pointsRect)
+
+    levelSurf = basic_font.render(f'Уровень: {level}', True, txt_color)
+    levelRect = levelSurf.get_rect()
+    levelRect.topleft = (window_w - 550, 250)
+    display_surf.blit(levelSurf, levelRect)
+
+    pausebSurf = basic_font.render('Пауза: пробел', True, info_color)
+    pausebRect = pausebSurf.get_rect()
+    pausebRect.topleft = (window_w - 550, 420)
+    display_surf.blit(pausebSurf, pausebRect)
+
+    escbSurf = basic_font.render('Выход: Esc', True, info_color)
+    escbRect = escbSurf.get_rect()
+    escbRect.topleft = (window_w - 550, 450)
+    display_surf.blit(escbSurf, escbRect)
+
+def drawFig(fig, pixelx=None, pixely=None):
+    figToDraw = figures[fig['shape']][fig['rotation']]
+    if pixelx is None and pixely is None:
+        pixelx, pixely = convertCoords(fig['x'], fig['y'])
+
+    for x in range(fig_w):
+        for y in range(fig_h):
+            if figToDraw[y][x] != empty:
+                drawBlock(None, None, fig['color'], pixelx + (x * block), pixely + (y * block))
+
+
+def drawnextFig(fig):
+    nextSurf = basic_font.render('Следующая:', True, txt_color)
+    nextRect = nextSurf.get_rect()
+    nextRect.topleft = (window_w - 150, 180)
+    display_surf.blit(nextSurf, nextRect)
+    drawFig(fig, pixelx=window_w - 150, pixely=230)
+
+
+
+def runTetris():
     cup = emptycup()
     last_move_down = time.time()
     last_side_move = time.time()
@@ -278,203 +374,30 @@ def show_pause_screen():
         gamecup(cup)
         drawInfo(points, level)
         drawnextFig(nextFig)
-        if fallingFig != None:
+        if fallingFig is not None:
             drawFig(fallingFig)
         pg.display.update()
         fps_clock.tick(fps)
 
-
-def txtObjects(text, font, color):
-    surf = font.render(text, True, color)
-    return surf, surf.get_rect()
-
-
-def stopGame():
-    pg.quit()
-    sys.exit()
-
-
-def checkKeys():
-    quitGame()
-
-    for event in pg.event.get([KEYDOWN, KEYUP]):
-        if event.type == KEYDOWN:
-            continue
-        return event.key
-    return None
-
-
-def showText(text):
-    titleSurf, titleRect = txtObjects(text, big_font, title_color)
-    titleRect.center = (int(window_w / 2) - 3, int(window_h / 2) - 3)
-    display_surf.blit(titleSurf, titleRect)
-   
-    pressKeySurf, pressKeyRect = txtObjects('Нажмите любую клавишу для продолжения', basic_font, title_color)
-    pressKeyRect.center = (int(window_w / 2), int(window_h / 2) + 100)
-    display_surf.blit(pressKeySurf, pressKeyRect)
-
-    while checkKeys() == None:
-        pg.display.update()
-        fps_clock.tick()
-
-
-def quitGame():
-    for event in pg.event.get(QUIT): # проверка всех событий, приводящих к выходу из игры
-        stopGame() 
-    for event in pg.event.get(KEYUP): 
-        if event.key == K_ESCAPE:
-            stopGame() 
-        pg.event.post(event) 
-
-
-def calcSpeed(points):
-    # вычисляет уровень
-    level = int(points / 10) + 1
-    fall_speed = 0.27 - (level * 0.02)
-    return level, fall_speed
-
-def getNewFig():
-    # возвращает новую фигуру со случайным цветом и углом поворота
-    shape = random.choice(list(figures.keys()))
-    newFigure = {'shape': shape,
-                'rotation': random.randint(0, len(figures[shape]) - 1),
-                'x': int(cup_w / 2) - int(fig_w / 2),
-                'y': -2, 
-                'color': random.randint(0, len(colors)-1)}
-    return newFigure
-
-
-def addToCup(cup, fig):
-    for x in range(fig_w):
-        for y in range(fig_h):
-            if figures[fig['shape']][fig['rotation']][y][x] != empty:
-                cup[x + fig['x']][y + fig['y']] = fig['color']
-
-
-def emptycup():
-    # создает пустой стакан
-    cup = []
-    for i in range(cup_w):
-        cup.append([empty] * cup_h)
-    return cup
-
-
-def incup(x, y):
-    return x >= 0 and x < cup_w and y < cup_h
-
-
-def checkPos(cup, fig, adjX=0, adjY=0):
-    # проверяет, находится ли фигура в границах стакана, не сталкиваясь с другими фигурами
-    for x in range(fig_w):
-        for y in range(fig_h):
-            abovecup = y + fig['y'] + adjY < 0
-            if abovecup or figures[fig['shape']][fig['rotation']][y][x] == empty:
-                continue
-            if not incup(x + fig['x'] + adjX, y + fig['y'] + adjY):
-                return False
-            if cup[x + fig['x'] + adjX][y + fig['y'] + adjY] != empty:
-                return False
-    return True
-
-def isCompleted(cup, y):
-    # проверяем наличие полностью заполненных рядов
-    for x in range(cup_w):
-        if cup[x][y] == empty:
-            return False
-    return True
-
-
-def clearCompleted(cup):
-    # Удаление заполенных рядов и сдвиг верхних рядов вниз
-    removed_lines = 0
-    y = cup_h - 1 
-    while y >= 0:
-        if isCompleted(cup, y):
-           for pushDownY in range(y, 0, -1):
-                for x in range(cup_w):
-                    cup[x][pushDownY] = cup[x][pushDownY-1]
-           for x in range(cup_w):
-                cup[x][0] = empty
-           removed_lines += 1
-        else:
-            y -= 1 
-    return removed_lines
-
-
-def convertCoords(block_x, block_y):
-    return (side_margin + (block_x * block)), (top_margin + (block_y * block))
-
-
-def drawBlock(block_x, block_y, color, pixelx=None, pixely=None):
-    #отрисовка квадратных блоков, из которых состоят фигуры
-    if color == empty:
-        return
-    if pixelx == None and pixely == None:
-        pixelx, pixely = convertCoords(block_x, block_y)
-    pg.draw.rect(display_surf, colors[color], (pixelx + 1, pixely + 1, block - 1, block - 1), 0, 3)
-    pg.draw.rect(display_surf, lightcolors[color], (pixelx + 1, pixely + 1, block - 4, block - 4), 0, 3)
-    pg.draw.circle(display_surf, colors[color], (pixelx + block / 2, pixely + block / 2), 5)
-    
-def gamecup(cup):
-    # граница игрового поля-стакана
-    pg.draw.rect(display_surf, brd_color, (side_margin - 4, top_margin - 4, (cup_w * block) + 8, (cup_h * block) + 8), 5)
-
-    # фон игрового поля
-    pg.draw.rect(display_surf, bg_color, (side_margin, top_margin, block * cup_w, block * cup_h))
-    for x in range(cup_w):
-        for y in range(cup_h):
-            drawBlock(x, y, cup[x][y])
-
-def drawTitle():
-    titleSurf = big_font.render('Тетрис Lite', True, title_color)
-    titleRect = titleSurf.get_rect()
-    titleRect.topleft = (window_w - 425, 30)
-    display_surf.blit(titleSurf, titleRect)
-    
-
-def drawInfo(points, level):
-
-    pointsSurf = basic_font.render(f'Баллы: {points}', True, txt_color)
-    pointsRect = pointsSurf.get_rect()
-    pointsRect.topleft = (window_w - 550, 180)
-    display_surf.blit(pointsSurf, pointsRect)
-
-    levelSurf = basic_font.render(f'Уровень: {level}', True, txt_color)
-    levelRect = levelSurf.get_rect()
-    levelRect.topleft = (window_w - 550, 250)
-    display_surf.blit(levelSurf, levelRect)
-
-    pausebSurf = basic_font.render('Пауза: пробел', True, info_color)
-    pausebRect = pausebSurf.get_rect()
-    pausebRect.topleft = (window_w - 550, 420)
-    display_surf.blit(pausebSurf, pausebRect)
-    
-    escbSurf = basic_font.render('Выход: Esc', True, info_color)
-    escbRect = escbSurf.get_rect()
-    escbRect.topleft = (window_w - 550, 450)
-    display_surf.blit(escbSurf, escbRect)
-
-def drawFig(fig, pixelx=None, pixely=None):
-    figToDraw = figures[fig['shape']][fig['rotation']]
-    if pixelx == None and pixely == None:    
-        pixelx, pixely = convertCoords(fig['x'], fig['y'])
-
-    #отрисовка элементов фигур
-    for x in range(fig_w):
-        for y in range(fig_h):
-            if figToDraw[y][x] != empty:
-                drawBlock(None, None, fig['color'], pixelx + (x * block), pixely + (y * block))
-
-
-def drawnextFig(fig):  # превью следующей фигуры
-    nextSurf = basic_font.render('Следующая:', True, txt_color)
-    nextRect = nextSurf.get_rect()
-    nextRect.topleft = (window_w - 150, 180)
-    display_surf.blit(nextSurf, nextRect)
-    drawFig(fig, pixelx=window_w-150, pixely=230)
+def main():
+    global fps_clock, display_surf, basic_font, big_font
+    pg.init()
+    fps_clock = pg.time.Clock()
+    display_surf = pg.display.set_mode((window_w, window_h))
+    basic_font = pg.font.SysFont('arial', 20)
+    big_font = pg.font.SysFont('verdana', 45)
+    pg.display.set_caption('Тетрис Lite')
+    showText('Тетрис Lite')
+    while True:
+        runTetris()
+        showText('Игра закончена')
 
 
 if __name__ == '__main__':
     main()
+
+
+
+
 
 
