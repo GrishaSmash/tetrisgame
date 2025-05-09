@@ -294,7 +294,7 @@ def runTetris():
                     going_down = False
 
             elif event.type == KEYDOWN:
-                if event.key == K_SPACE
+                if event.key == K_SPACE:
                     paused = not paused
                     if paused:
                         show_pause_screen()
