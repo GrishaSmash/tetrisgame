@@ -44,9 +44,30 @@ figures = {
                   
                  
 def save_score(points):
-    """Сохраняет результат в файл scores.txt"""
-    with open('scores.txt', 'a') as f:
+     with open('scores.txt', 'a') as f:
         f.write(f"{time.strftime('%Y-%m-%d %H:%M:%S')} - Очки: {points}\n")
+def save_game_state(cup, points, level, fallingFig, nextFig):
+    game_state = {
+        'cup': cup,
+        'points': points,
+        'level': level,
+        'fallingFig': fallingFig,
+        'nextFig': nextFig,
+        'timestamp': time.time()
+    }
+    with open('tetris_save.dat', 'wb') as f:
+        pickle.dump(game_state, f)
+def load_game_state():
+    try:
+        with open('tetris_save.dat', 'rb') as f:
+            state = pickle.load(f)
+            # Проверяем, не устарело ли сохранение (старше 1 дня)
+            if time.time() - state['timestamp'] > 86400:
+                return None
+            return state
+    except (FileNotFoundError, EOFError, pickle.PickleError):
+        return None
+
 
 def show_pause_screen():
     """Отображает экран паузы"""
@@ -256,18 +277,20 @@ def drawnextFig(fig):
 
 
 
-def runTetris():
-    cup = emptycup()
+def runTetris(initial_state=None):
+    cup = emptycup()if initial_state is None else initial_state['cup']
+    points = 0 if initial_state is None else initial_state['points']
+    level, fall_speed = calcSpeed(points)
+    fallingFig = getNewFig() if initial_state is None else initial_state['fallingFig']
+    nextFig = getNewFig() if initial_state is None else initial_state['nextFig']
+
+
     last_move_down = time.time()
     last_side_move = time.time()
     last_fall = time.time()
     going_down = False 
     going_left = False
     going_right = False
-    points = 0
-    level, fall_speed = calcSpeed(points)
-    fallingFig = getNewFig()
-    nextFig = getNewFig()
     paused = False
 
 
@@ -280,7 +303,7 @@ def runTetris():
 
             if not checkPos(cup, fallingFig):
                 save_score(points) # сохранение перед выходом
-                return
+                return False
 
             quitGame()
 
@@ -341,8 +364,13 @@ def runTetris():
                         if not checkPos(cup, fallingFig, adjY=i):
                             break
                     fallingFig['y'] += i - 1
-        if paused:
-            continue
+                elif event.key == K_ESCAPE:
+                    save_game_state(cup, points, level, fallingFig, nextFig)
+                    return True
+
+        
+            if paused:
+               continue
             
 
         # управление падением фигуры при удержании клавиш
@@ -379,6 +407,47 @@ def runTetris():
         pg.display.update()
         fps_clock.tick(fps)
 
+def show_menu(saved_game_exists):
+    display_surf.fill(bg_color)
+
+    titleSurf = big_font.render('ТЕТРИС', True, title_color)
+    titleRect = titleSurf.get_rect(center=(window_w / 2, window_h / 2 - 100))
+    display_surf.blit(titleSurf, titleRect)
+
+    if saved_game_exists:
+        option1 = basic_font.render('1. Новая игра', True, txt_color)
+        option1_rect = option1.get_rect(center=(window_w / 2, window_h / 2))
+        display_surf.blit(option1, option1_rect)
+
+        option2 = basic_font.render('2. Продолжить', True, txt_color)
+        option2_rect = option2.get_rect(center=(window_w / 2, window_h / 2 + 50))
+        display_surf.blit(option2, option2_rect)
+    else:
+        option = basic_font.render('Нажмите любую клавишу для начала', True, txt_color)
+        option_rect = option.get_rect(center=(window_w / 2, window_h / 2))
+        display_surf.blit(option, option_rect)
+
+    pg.display.update()
+
+    while True:
+        for event in pg.event.get():
+            if event.type == QUIT:
+                pg.quit()
+                sys.exit()
+            if event.type == KEYDOWN:
+                if saved_game_exists:
+                    if event.key == K_1:
+                        return None  # Новая игра
+                    elif event.key == K_2:
+                        return load_game_state()  # Продолжить
+                else:
+                    return None  # Новая игра
+                if event.key == K_ESCAPE:
+                    pg.quit()
+                    sys.exit()
+
+
+
 def main():
     global fps_clock, display_surf, basic_font, big_font
     pg.init()
@@ -387,11 +456,21 @@ def main():
     basic_font = pg.font.SysFont('arial', 20)
     big_font = pg.font.SysFont('verdana', 45)
     pg.display.set_caption('Тетрис Lite')
-    showText('Тетрис Lite')
+    
     while True:
-        runTetris()
-        showText('Игра закончена')
+        saved_game = load_game_state()
+        initial_state = show_menu(saved_game is not None)
 
+        if initial_state is None:  # Новая игра
+            game_result = runTetris()
+        else:  # Продолжить сохраненную игру
+            game_result = runTetris(initial_state)
+
+        if not game_result:  # Игра завершена (не по ESC)
+            showText('Игра закончена')
+        # Иначе возвращаемся в меню
+
+    
 
 if __name__ == '__main__':
     main()
