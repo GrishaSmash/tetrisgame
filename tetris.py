@@ -57,6 +57,7 @@ def save_game_state(cup, points, level, fallingFig, nextFig):
     }
     with open('tetris_save.dat', 'wb') as f:
         pickle.dump(game_state, f)
+
 def load_game_state():
     try:
         with open('tetris_save.dat', 'rb') as f:
@@ -305,7 +306,7 @@ def runTetris(initial_state=None):
                 save_score(points) # сохранение перед выходом
                 return False
 
-            quitGame()
+        quitGame()
 
         for event in pg.event.get(): 
             if event.type == KEYUP:
