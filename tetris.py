@@ -1,5 +1,5 @@
 import pygame as pg
-import random, time, sys
+import random, time,sys,pickle
 from pygame.locals import *
 
 fps = 25
