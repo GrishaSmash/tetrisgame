@@ -16,7 +16,7 @@ lightcolors = ((30, 30, 255), (50, 255, 50), (255, 30, 30), (255, 255, 30)) # с
 white, gray, black  = (255, 255, 255), (185, 185, 185), (0, 0, 0)
 brd_color, bg_color, txt_color, title_color, info_color = white, black, white, colors[3], colors[0]
 
-fig_w, fig_h = 5, 5
+fig_w, fig_h = 5,5
 empty = 'o'
 
 figures = {
@@ -46,6 +46,110 @@ figures = {
 def save_score(points):
      with open('scores.txt', 'a') as f:
         f.write(f"{time.strftime('%Y-%m-%d %H:%M:%S')} - Очки: {points}\n")
+
+def save_highscore(name, score):
+    """Сохраняет рекорд в файл с топ-10 результатами"""
+    try:
+        with open('highscores.dat', 'rb') as f:
+            highscores = pickle.load(f)
+    except (FileNotFoundError, EOFError):
+        highscores = []
+
+    highscores.append((name, score))
+    # топ 10 лучших
+    highscores.sort(key=lambda x: x[1], reverse=True)
+    highscores = highscores[:10]
+
+    with open('highscores.dat', 'wb') as f:
+        pickle.dump(highscores, f)
+
+def show_highscores():
+    """Отображает экран с рекордами"""
+    try:
+        with open('highscores.dat', 'rb') as f:
+            highscores = pickle.load(f)
+    except (FileNotFoundError, EOFError):
+        highscores = []
+
+    display_surf.fill(bg_color)
+
+    
+    title = big_font.render('Топ-10 рекордов', True, title_color)
+    display_surf.blit(title, (window_w / 2 - title.get_width() / 2, 30))
+
+    if not highscores:
+        
+        no_scores = basic_font.render('Рекордов пока нет!', True, txt_color)
+        display_surf.blit(no_scores, (window_w / 2 - no_scores.get_width() / 2, 150))
+    else:
+        
+        for i, (name, score) in enumerate(highscores):
+            entry = basic_font.render(f"{i + 1}. {name}: {score}", True, txt_color)
+            display_surf.blit(entry, (window_w / 2 - entry.get_width() / 2, 100 + i * 40))
+
+    
+    back = basic_font.render('Нажмите любую клавишу для возврата', True, info_color)
+    display_surf.blit(back, (window_w / 2 - back.get_width() / 2, window_h - 50))
+
+    pg.display.update()
+
+    
+    while True:
+        for event in pg.event.get():
+            if event.type == QUIT or (event.type == KEYDOWN and event.key != K_ESCAPE):
+                return
+            if event.type == KEYDOWN and event.key == K_ESCAPE:
+                return
+def get_player_name(points):
+    """Запрашивает имя игрока для сохранения рекорда"""
+    name = ""
+    input_active = True
+
+    while input_active:
+        display_surf.fill(bg_color)
+
+        title = big_font.render('Новый рекорд!', True, title_color)
+        display_surf.blit(title, (window_w / 2 - title.get_width() / 2, 100))
+
+        
+        score_text = basic_font.render(f'Ваш результат: {points}', True, txt_color)
+        display_surf.blit(score_text, (window_w / 2 - score_text.get_width() / 2, 180))
+
+     
+        prompt = basic_font.render('Введите ваше имя:', True, txt_color)
+        display_surf.blit(prompt, (window_w / 2 - prompt.get_width() / 2, 250))
+
+        name_surface = basic_font.render(name, True, white)
+        pg.draw.rect(display_surf, white, (window_w / 2 - 100, 300, 200, 30), 2)
+        display_surf.blit(name_surface, (window_w / 2 - name_surface.get_width() / 2, 305))
+
+        
+        instruction = basic_font.render('Нажмите Enter для сохранения', True, info_color)
+        display_surf.blit(instruction, (window_w / 2 - instruction.get_width() / 2, 350))
+
+        pg.display.update()
+
+        for event in pg.event.get():
+            if event.type == QUIT:
+                pg.quit()
+                sys.exit()
+            if event.type == KEYDOWN:
+                if event.key == K_RETURN:
+                    input_active = False
+                elif event.key == K_BACKSPACE:
+                    name = name[:-1]
+                elif len(name) < 15:  # Ограничение длины имени
+                    name += event.unicode
+
+    return name if name.strip() else "Игрок"
+
+
+
+
+
+
+
+        
 def save_game_state(cup, points, level, fallingFig, nextFig):
     game_state = {
         'cup': cup,
