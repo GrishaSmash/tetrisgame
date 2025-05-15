@@ -516,21 +516,29 @@ def show_menu(saved_game_exists):
     display_surf.fill(bg_color)
 
     titleSurf = big_font.render('ТЕТРИС', True, title_color)
-    titleRect = titleSurf.get_rect(center=(window_w / 2, window_h / 2 - 100))
+    titleRect = titleSurf.get_rect(center=(window_w / 2, window_h / 2 - 150))
     display_surf.blit(titleSurf, titleRect)
 
     if saved_game_exists:
         option1 = basic_font.render('1. Новая игра', True, txt_color)
-        option1_rect = option1.get_rect(center=(window_w / 2, window_h / 2))
+        option1_rect = option1.get_rect(center=(window_w / 2, window_h / 2 - 50))
         display_surf.blit(option1, option1_rect)
 
         option2 = basic_font.render('2. Продолжить', True, txt_color)
-        option2_rect = option2.get_rect(center=(window_w / 2, window_h / 2 + 50))
+        option2_rect = option2.get_rect(center=(window_w / 2, window_h / 2))
         display_surf.blit(option2, option2_rect)
+        
+        option3 = basic_font.render('3. Топ 10 игроков', True, txt_color)
+        option3_rect = option3.get_rect(center=(window_w / 2, window_h / 2 + 50))
+        display_surf.blit(option3, option3_rect)
     else:
-        option = basic_font.render('Нажмите любую клавишу для начала', True, txt_color)
-        option_rect = option.get_rect(center=(window_w / 2, window_h / 2))
-        display_surf.blit(option, option_rect)
+        option1 = basic_font.render('1. Новая игра', True, txt_color)
+        option1_rect = option1.get_rect(center=(window_w / 2, window_h / 2 - 25))
+        display_surf.blit(option1, option1_rect)
+        
+        option2 = basic_font.render('2. Топ 10 игроков', True, txt_color)
+        option2_rect = option2.get_rect(center=(window_w / 2, window_h / 2 + 25))
+        display_surf.blit(option2, option2_rect)
 
     pg.display.update()
 
@@ -545,12 +553,18 @@ def show_menu(saved_game_exists):
                         return None  # Новая игра
                     elif event.key == K_2:
                         return load_game_state()  # Продолжить
+                    elif event.key == K_3:
+                        show_highscores()
+                        return show_menu(saved_game_exists)
                 else:
-                    return None  # Новая игра
+                    if event.key == K_1:
+                        return None  # Новая игра
+                    elif event.key == K_2:
+                        show_highscores()
+                        return show_menu(saved_game_exists)
                 if event.key == K_ESCAPE:
                     pg.quit()
                     sys.exit()
-
 
 
 def main():
