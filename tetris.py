@@ -41,7 +41,8 @@ figures = {
           ['ooooo', 'ooxoo', 'oxxoo', 'ooxoo', 'ooooo']]
 }
                   
-                  
+ 
+fig_stats = {'S': 0, 'Z': 0, 'J': 0, 'L': 0, 'I': 0, 'O': 0, 'T': 0}                 
                  
 def save_score(points):
      with open('scores.txt', 'a') as f:
@@ -352,6 +353,14 @@ def drawInfo(points, level):
     levelRect.topleft = (window_w - 550, 250)
     display_surf.blit(levelSurf, levelRect)
 
+
+    sorted_stats = sorted(fig_stats.items(), key=lambda x: x[1], reverse=True)
+    stats_text = "Чаще: " + ", ".join(f"{shape}:{count}" for shape, count in sorted_stats[:3])
+    statsSurf = basic_font.render(stats_text, True, info_color)
+    statsRect = statsSurf.get_rect()
+    statsRect.topleft = (window_w - 550, 320)
+    display_surf.blit(statsSurf, statsRect)
+
     pausebSurf = basic_font.render('Пауза: пробел', True, info_color)
     pausebRect = pausebSurf.get_rect()
     pausebRect.topleft = (window_w - 550, 420)
@@ -383,6 +392,13 @@ def drawnextFig(fig):
 
 
 def runTetris(initial_state=None):
+    global fig_stats
+    
+    # Сброс статистики при новой игре
+    if initial_state is None:
+        fig_stats = {'S': 0, 'Z': 0, 'J': 0, 'L': 0, 'I': 0, 'O': 0, 'T': 0}
+    
+
     cup = emptycup()if initial_state is None else initial_state['cup']
     points = 0 if initial_state is None else initial_state['points']
     level, fall_speed = calcSpeed(points)
