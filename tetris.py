@@ -16,6 +16,11 @@ lightcolors = ((30, 30, 255), (50, 255, 50), (255, 30, 30), (255, 255, 30)) # с
 white, gray, black  = (255, 255, 255), (185, 185, 185), (0, 0, 0)
 brd_color, bg_color, txt_color, title_color, info_color = white, black, white, colors[3], colors[0]
 
+
+flash_duration = 0.3  
+last_cleared_lines = []  
+flash_start_time = 0    
+
 fig_w, fig_h = 5,5
 empty = 'o'
 
@@ -43,7 +48,18 @@ figures = {
                   
  
 fig_stats = {'S': 0, 'Z': 0, 'J': 0, 'L': 0, 'I': 0, 'O': 0, 'T': 0}                 
-                 
+
+def drawFlashEffect():
+    if time.time() - flash_start_time < flash_duration:
+        flash_intensity = 0.5 + 0.5 * math.sin((time.time() - flash_start_time) * 20)
+        for y in last_cleared_lines:
+            for x in range(cup_w):
+                pixelx, pixely = convertCoords(x, y)
+                s = pg.Surface((block, block), pg.SRCALPHA)
+                s.fill((255, 255, 255, int(150 * flash_intensity)))
+                display_surf.blit(s, (pixelx, pixely))
+
+
 def save_score(points):
      with open('scores.txt', 'a') as f:
         f.write(f"{time.strftime('%Y-%m-%d %H:%M:%S')} - Очки: {points}\n")
@@ -147,10 +163,6 @@ def get_player_name(points):
 
 
 
-
-
-
-        
 def save_game_state(cup, points, level, fallingFig, nextFig):
     game_state = {
         'cup': cup,
@@ -257,6 +269,7 @@ def getNewFig():
         'y': -2,
         'color': random.randint(0, len(colors) - 1)
     }
+    fig_stats[shape] += 1
     return newFigure
 
 
@@ -298,16 +311,22 @@ def isCompleted(cup, y):
 
 
 def clearCompleted(cup):
+    global last_cleared_lines, flash_start_time 
     removed_lines = 0
     y = cup_h - 1
+    last_cleared_lines = []
     while y >= 0:
         if isCompleted(cup, y):
+            last_cleared_lines.append(y)
+
             for pushDownY in range(y, 0, -1):
                 for x in range(cup_w):
                     cup[x][pushDownY] = cup[x][pushDownY - 1]
             for x in range(cup_w):
                 cup[x][0] = empty
             removed_lines += 1
+            flash_start_time = time.time()
+
         else:
             y -= 1
     return removed_lines
@@ -333,6 +352,7 @@ def gamecup(cup):
     for x in range(cup_w):
         for y in range(cup_h):
             drawBlock(x, y, cup[x][y])
+    drawFlashEffect()
 
 
 def drawTitle():
@@ -397,7 +417,8 @@ def runTetris(initial_state=None):
     # Сброс статистики при новой игре
     if initial_state is None:
         fig_stats = {'S': 0, 'Z': 0, 'J': 0, 'L': 0, 'I': 0, 'O': 0, 'T': 0}
-    
+        last_cleared_lines = []  
+        flash_start_time = 0   
 
     cup = emptycup()if initial_state is None else initial_state['cup']
     points = 0 if initial_state is None else initial_state['points']
@@ -520,6 +541,7 @@ def runTetris(initial_state=None):
         # рисуем окно игры со всеми надписями
         display_surf.fill(bg_color)
         drawTitle()
+        gamecup(cup)
         gamecup(cup)
         drawInfo(points, level)
         drawnextFig(nextFig)
