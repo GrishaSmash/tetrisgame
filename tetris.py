@@ -1,5 +1,7 @@
 import pygame as pg
 import random, time,sys,pickle
+import os
+import math
 from pygame.locals import *
 
 fps = 25
@@ -172,8 +174,13 @@ def save_game_state(cup, points, level, fallingFig, nextFig):
         'nextFig': nextFig,
         'timestamp': time.time()
     }
-    with open('tetris_save.dat', 'wb') as f:
-        pickle.dump(game_state, f)
+    try:
+        with open('tetris_save.dat', 'wb') as f:
+            pickle.dump(game_state, f)
+        return True
+    except Exception as e:
+        print(f"Ошибка сохранения: {e}")
+        return False
 
 def load_game_state():
     try:
@@ -183,7 +190,10 @@ def load_game_state():
             if time.time() - state['timestamp'] > 86400:
                 return None
             return state
+    except FileNotFoundError:
+        return None
     except (FileNotFoundError, EOFError, pickle.PickleError):
+        print(f"Ошибка загрузки: {e}")
         return None
 
 
@@ -247,6 +257,9 @@ def showText(text):
 
 
 def quitGame():
+    if 'cup' in globals() and 'points' in globals() and 'fallingFig' in globals():
+        save_game_state(cup, points, level, fallingFig, nextFig)
+    
     for event in pg.event.get(QUIT):
         stopGame()
     for event in pg.event.get(KEYUP):
@@ -613,20 +626,27 @@ def main():
     basic_font = pg.font.SysFont('arial', 20)
     big_font = pg.font.SysFont('verdana', 45)
     pg.display.set_caption('Тетрис Lite')
-    
+
+    saved_game = load_game_state()
+    if saved_game is not None:
+        # Если есть сохранение, сразу запускаем игру
+        game_result = runTetris(saved_game)
+    else:
+        # Если сохранения нет, показываем меню
+        initial_state = show_menu()
+        game_result = runTetris(initial_state)
     while True:
-        saved_game = load_game_state()
-        initial_state = show_menu(saved_game is not None)
-
-        if initial_state is None:  # Новая игра
-            game_result = runTetris()
-        else:  # Продолжить сохраненную игру
-            game_result = runTetris(initial_state)
-
-        if not game_result:  # Игра завершена (не по ESC)
+        if not game_result:
             showText('Игра закончена')
-        # Иначе возвращаемся в меню
+            try:
+                os.remove('tetris_save.dat')
+            except FileNotFoundError:
+                pass
 
+            # После завершения игры возвращаемся в меню
+            initial_state = show_menu()
+            game_result = runTetris(initial_state)
+       
     
 
 if __name__ == '__main__':
